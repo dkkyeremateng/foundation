@@ -87,6 +87,7 @@ func (a *App) Handle(method string, group string, path string, handler Handler, 
 			TraceID: span.SpanContext().TraceID().String(),
 			Now:     time.Now(),
 		}
+
 		ctx = context.WithValue(ctx, key, &v)
 
 		// Call the wrapped handler functions.
