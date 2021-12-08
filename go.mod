@@ -1,4 +1,4 @@
-module github.com/dkkyeremateng/go/foundation
+module github.com/dkkyeremateng/foundation
 
 go 1.17
 
