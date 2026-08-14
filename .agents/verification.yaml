@@ -1,0 +1,27 @@
+# Verification for dkkyeremateng/foundation.
+#
+# The factory resolves this file from the PINNED base commit, never from the
+# workspace the agent can write to, so an agent that edits it in its sandbox
+# changes nothing about what actually runs.
+#
+# Commands are matched EXACTLY and the list is an allowlist: anything not
+# written here fails closed. Keep each entry a literal command line.
+commands:
+  - go build ./...
+  - go vet ./...
+  - go test ./...
+
+# `go test` is listed even though this repository currently has no test files,
+# where it passes trivially. It is here so that the day a test is added it is
+# already part of what a change must satisfy — rather than the day someone
+# remembers to update this file.
+
+# Go compiles and links, which needs more of both than a script does.
+timeout_seconds: 600
+memory_mb: 2048
+
+# No egress at all. The module cache is populated on the host before the
+# sandbox exists and mounted read-only, so verification needs the network for
+# nothing — and a verification step that cannot reach the network can never
+# become a way out of the sandbox.
+network: none
