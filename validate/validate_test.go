@@ -94,6 +94,29 @@ func TestGenerateID_Unique(t *testing.T) {
 	}
 }
 
+// TestSlugify verifies that Slugify lowercases its input, replaces
+// whitespace and punctuation with single dashes, and trims separators.
+func TestSlugify(t *testing.T) {
+	tt := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"plain lowercase", "hello world", "hello-world"},
+		{"mixed case and surrounding whitespace", " Hello World ", "hello-world"},
+		{"punctuation and repeated separators", "Hello, World!!!", "hello-world"},
+		{"empty string", "", ""},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := Slugify(tc.input); got != tc.want {
+				t.Errorf("Slugify(%q) = %q, want %q", tc.input, got, tc.want)
+			}
+		})
+	}
+}
+
 // TestCheckID_Invalid verifies that CheckID rejects malformed ids.
 func TestCheckID_Invalid(t *testing.T) {
 	tt := []struct {
