@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/dimfeld/httptreemux/v5"
+	"github.com/dkkyeremateng/foundation/validate"
 )
 
 // TestDecode verifies that Decode unmarshals a valid JSON body into
@@ -55,6 +56,64 @@ func TestDecode_MalformedJSON(t *testing.T) {
 	}
 	if err := Decode(req, &p); err == nil {
 		t.Fatal("Decode() with malformed JSON = nil, want an error")
+	}
+}
+
+// TestDecode_Valid verifies that Decode returns nil when the decoded
+// struct satisfies its validation tags.
+func TestDecode_Valid(t *testing.T) {
+	type person struct {
+		Name  string `json:"name" validate:"required"`
+		Email string `json:"email" validate:"required,email"`
+	}
+
+	body := `{"name":"Bill","email":"bill@example.com"}`
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(body))
+
+	var p person
+	if err := Decode(req, &p); err != nil {
+		t.Fatalf("Decode() = %v, want nil", err)
+	}
+	if p.Name != "Bill" || p.Email != "bill@example.com" {
+		t.Errorf("Decode() = %+v, want name and email populated", p)
+	}
+}
+
+// TestDecode_InvalidValidation verifies that Decode returns FieldErrors
+// when the decoded struct violates its validation tags.
+func TestDecode_InvalidValidation(t *testing.T) {
+	type person struct {
+		Name  string `json:"name" validate:"required"`
+		Email string `json:"email" validate:"required,email"`
+	}
+
+	body := `{"name":"","email":"not-an-email"}`
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(body))
+
+	var p person
+	err := Decode(req, &p)
+	if err == nil {
+		t.Fatal("Decode() = nil, want validation error")
+	}
+	if !validate.IsFieldErrors(err) {
+		t.Fatalf("Decode() error = %T, want validate.FieldErrors", err)
+	}
+
+	fields := validate.GetFieldErrors(err)
+	var foundName, foundEmail bool
+	for _, fe := range fields {
+		if fe.Field == "name" {
+			foundName = true
+		}
+		if fe.Field == "email" {
+			foundEmail = true
+		}
+	}
+	if !foundName {
+		t.Errorf("FieldErrors = %+v, want an entry for field \"name\"", fields)
+	}
+	if !foundEmail {
+		t.Errorf("FieldErrors = %+v, want an entry for field \"email\"", fields)
 	}
 }
 

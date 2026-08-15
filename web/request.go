@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dimfeld/httptreemux/v5"
+	"github.com/dkkyeremateng/foundation/validate"
 )
 
 // Param returns the web call parameters from the request.
@@ -24,5 +25,5 @@ func Decode(r *http.Request, val interface{}) error {
 		return err
 	}
 
-	return nil
+	return validate.Check(val)
 }
