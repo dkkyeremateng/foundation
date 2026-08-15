@@ -76,3 +76,13 @@ func TestRespond_MarshalError(t *testing.T) {
 		t.Fatal("Respond() with unmarshalable data = nil, want an error")
 	}
 }
+
+// TestRespond_NoValues verifies that Respond returns an error when called
+// on a context that does not carry the framework's Values, since the
+// status code cannot be recorded for the request logger middleware.
+func TestRespond_NoValues(t *testing.T) {
+	rec := httptest.NewRecorder()
+	if err := Respond(context.Background(), rec, map[string]string{"name": "Bill"}, http.StatusOK); err == nil {
+		t.Fatal("Respond() on a bare context = nil, want an error")
+	}
+}
