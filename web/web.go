@@ -92,8 +92,10 @@ func (a *App) Handle(method string, group string, path string, handler Handler, 
 
 		// Call the wrapped handler functions.
 		if err := handler(ctx, w, r); err != nil {
-			a.SignalShutdown()
-			return
+			if IsShutdown(err) {
+				a.SignalShutdown()
+				return
+			}
 		}
 	}
 
