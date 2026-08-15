@@ -4,7 +4,6 @@ package keystore
 
 import (
 	"crypto/rsa"
-	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -112,7 +111,7 @@ func (ks *KeyStore) PrivateKey(kid string) (*rsa.PrivateKey, error) {
 
 	privateKey, found := ks.store[kid]
 	if !found {
-		return nil, errors.New("kid lookup failed")
+		return nil, fmt.Errorf("private key kid lookup failed for kid %q", kid)
 	}
 	return privateKey, nil
 }
@@ -125,7 +124,7 @@ func (ks *KeyStore) PublicKey(kid string) (*rsa.PublicKey, error) {
 
 	privateKey, found := ks.store[kid]
 	if !found {
-		return nil, errors.New("kid lookup failed")
+		return nil, fmt.Errorf("public key kid lookup failed for kid %q", kid)
 	}
 	return &privateKey.PublicKey, nil
 }
