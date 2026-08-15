@@ -110,30 +110,30 @@ func TestPrivatePublicKey(t *testing.T) {
 // TestPrivatePublicKey_UnknownKid verifies that PrivateKey and PublicKey
 // return an error for a kid that is not in the store.
 func TestPrivatePublicKey_UnknownKid(t *testing.T) {
-key := generateKey(t)
-ks := keystore.NewMap(map[string]*rsa.PrivateKey{"kid1": key})
+	key := generateKey(t)
+	ks := keystore.NewMap(map[string]*rsa.PrivateKey{"kid1": key})
 
-if _, err := ks.PrivateKey("unknown"); err == nil {
-t.Errorf("PrivateKey(unknown) = nil, want an error")
-}
+	if _, err := ks.PrivateKey("unknown"); err == nil {
+		t.Errorf("PrivateKey(unknown) = nil, want an error")
+	}
 
-if _, err := ks.PublicKey("unknown"); err == nil {
-t.Errorf("PublicKey(unknown) = nil, want an error")
-}
+	if _, err := ks.PublicKey("unknown"); err == nil {
+		t.Errorf("PublicKey(unknown) = nil, want an error")
+	}
 }
 
 // TestPrivatePublicKey_EmptyStore verifies that PrivateKey and PublicKey
 // return an error when the store is empty.
 func TestPrivatePublicKey_EmptyStore(t *testing.T) {
-ks := keystore.New()
+	ks := keystore.New()
 
-if _, err := ks.PrivateKey("kid1"); err == nil {
-t.Errorf("PrivateKey(kid1) on empty store = nil, want an error")
-}
+	if _, err := ks.PrivateKey("kid1"); err == nil {
+		t.Errorf("PrivateKey(kid1) on empty store = nil, want an error")
+	}
 
-if _, err := ks.PublicKey("kid1"); err == nil {
-t.Errorf("PublicKey(kid1) on empty store = nil, want an error")
-}
+	if _, err := ks.PublicKey("kid1"); err == nil {
+		t.Errorf("PublicKey(kid1) on empty store = nil, want an error")
+	}
 }
 
 // TestNewFS verifies that NewFS loads PEM files from a file system,
@@ -144,8 +144,8 @@ func TestNewFS(t *testing.T) {
 
 	fsys := fstest.MapFS{
 		"54bb2165-71e1-41a6-af3e-7da4a0e1e2c1.pem": &fstest.MapFile{Data: pemEncode(t, key)},
-		"README.txt":                              &fstest.MapFile{Data: []byte("not a key")},
-		"nested":                                  &fstest.MapFile{Mode: fs.ModeDir},
+		"README.txt": &fstest.MapFile{Data: []byte("not a key")},
+		"nested":     &fstest.MapFile{Mode: fs.ModeDir},
 	}
 
 	ks, err := keystore.NewFS(fsys)

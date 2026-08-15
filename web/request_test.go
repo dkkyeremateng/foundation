@@ -70,17 +70,17 @@ func TestParam(t *testing.T) {
 		t.Errorf("Param(id) = %q, want %q", got, "42")
 	}
 
-if got := Param(req, "missing"); got != "" {
-t.Errorf("Param(missing) = %q, want %q", got, "")
-}
+	if got := Param(req, "missing"); got != "" {
+		t.Errorf("Param(missing) = %q, want %q", got, "")
+	}
 }
 
 // TestParam_NoParams verifies that Param returns the empty string and
 // does not panic when the request context carries no params.
 func TestParam_NoParams(t *testing.T) {
-req := httptest.NewRequest(http.MethodGet, "/users/42", nil)
+	req := httptest.NewRequest(http.MethodGet, "/users/42", nil)
 
-if got := Param(req, "id"); got != "" {
-t.Errorf("Param(id) = %q, want %q", got, "")
-}
+	if got := Param(req, "id"); got != "" {
+		t.Errorf("Param(id) = %q, want %q", got, "")
+	}
 }
