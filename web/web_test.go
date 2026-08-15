@@ -123,9 +123,9 @@ func TestApp_Middleware(t *testing.T) {
 	}
 }
 
-// TestApp_SignalShutdown verifies that a handler returning an error
-// causes the app to signal a shutdown.
-func TestApp_SignalShutdown(t *testing.T) {
+// TestApp_HandlerError_DoesNotSignalShutdown verifies that a handler
+// returning an ordinary error does not cause the app to signal a shutdown.
+func TestApp_HandlerError_DoesNotSignalShutdown(t *testing.T) {
 	shutdown := make(chan os.Signal, 1)
 	app := web.NewApp(shutdown)
 
@@ -139,10 +139,31 @@ func TestApp_SignalShutdown(t *testing.T) {
 
 	select {
 	case sig := <-shutdown:
+		t.Fatalf("unexpected shutdown signal: %v", sig)
+	default:
+	}
+}
+
+// TestApp_ShutdownError_SignalsShutdown verifies that a handler returning
+// a shutdown error causes the app to signal a shutdown.
+func TestApp_ShutdownError_SignalsShutdown(t *testing.T) {
+	shutdown := make(chan os.Signal, 1)
+	app := web.NewApp(shutdown)
+
+	app.Handle(http.MethodGet, "", "/fail", func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+		return web.NewShutdownError("shutdown requested")
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/fail", nil)
+	rec := httptest.NewRecorder()
+	app.ServeHTTP(rec, req)
+
+	select {
+	case sig := <-shutdown:
 		if sig != syscall.SIGTERM {
 			t.Errorf("shutdown signal = %v, want %v", sig, syscall.SIGTERM)
 		}
 	case <-time.After(time.Second):
-		t.Fatal("no shutdown signal received after handler error")
+		t.Fatal("no shutdown signal received after shutdown error")
 	}
 }
