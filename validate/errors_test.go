@@ -103,3 +103,22 @@ func TestGetFieldErrors(t *testing.T) {
 		t.Errorf("GetFieldErrors(nil) = %v, want nil", got)
 	}
 }
+
+// TestGetFieldErrors_ReturnsCopy verifies that the slice returned by
+// GetFieldErrors does not share a backing array with the original error,
+// so writing through it does not mutate the error.
+func TestGetFieldErrors_ReturnsCopy(t *testing.T) {
+	fe := FieldErrors{{Field: "name", Error: "name is a required field"}}
+
+	got := GetFieldErrors(fe)
+	if got == nil || len(got) != len(fe) {
+		t.Fatalf("GetFieldErrors(FieldErrors) = %v, want a copy of %v", got, fe)
+	}
+
+	got[0].Error = "redacted"
+
+	if fe[0].Error != "name is a required field" {
+		t.Errorf("GetFieldErrors returned an alias: mutating it changed the original "+
+			"error to %q; want a copy", fe[0].Error)
+	}
+}

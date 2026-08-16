@@ -38,11 +38,13 @@ func IsFieldErrors(err error) bool {
 	return errors.As(err, &fe)
 }
 
-// GetFieldErrors returns a copy of the FieldErrors pointer.
+// GetFieldErrors returns a copy of the FieldErrors value.
 func GetFieldErrors(err error) FieldErrors {
 	var fe FieldErrors
 	if !errors.As(err, &fe) {
 		return nil
 	}
-	return fe
+	out := make(FieldErrors, len(fe))
+	copy(out, fe)
+	return out
 }
